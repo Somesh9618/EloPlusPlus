@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Elo++ | Premium Chess Matchmaking & Rating Dashboard{% endblock %}</title>
+    <!-- Premium Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Link to Stylesheet -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <!-- Floating Background Decorative SVGs (Chess pieces/boards on sides) -->
+    <div class="chess-decoration decoration-left">
+        <svg viewBox="0 0 100 100" fill="currentColor">
+            <!-- Knight Silhouette -->
+            <path d="M35,20 C32,20 28,22 25,25 C20,30 20,38 23,43 C26,48 30,50 32,54 C33,56 31,58 29,60 C25,64 21,70 20,78 L80,78 C79,72 75,65 71,61 C67,57 65,56 65,54 C65,51 68,48 70,44 C72,40 73,34 71,28 C69,22 64,18 57,17 C52,16 46,17 40,19 C38,19 37,20 35,20 Z" opacity="0.03"></path>
+        </svg>
+    </div>
+    <div class="chess-decoration decoration-right">
+        <svg viewBox="0 0 100 100" fill="currentColor">
+            <!-- Rook Silhouette -->
+            <path d="M25,20 L25,30 L32,30 L32,25 L45,25 L45,30 L55,30 L55,25 L68,25 L68,30 L75,30 L75,20 Z M28,33 L72,33 L70,45 L30,45 Z M30,48 L70,48 L73,75 L27,75 Z M20,78 L80,78 L80,85 L20,85 Z" opacity="0.03"></path>
+        </svg>
+    </div>
+
+    <!-- Navigation Bar -->
+    <header class="app-header">
+        <div class="nav-container">
+            <a href="{{ url_for('hello_world') }}" class="brand">
+                <svg class="brand-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <!-- Elegant Chess Knight SVG -->
+                    <path d="M19 21H5C5 18 6.5 16.5 8 15.5C9 14.8 9.5 14.5 9 13.5C8 11.5 6 9.5 7 6.5C8 3.5 11.5 3 13.5 3.5C15.5 4 17 5.5 17.5 7.5C18 9.5 17.5 11 16.5 12.5C16 13.5 16.5 13.8 17.5 14.5C19 15.5 19 18 19 21Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round" fill="currentColor" fill-opacity="0.2"/>
+                    <path d="M11.5 7.5C11.5 7.5 12 7.2 12.5 7.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                </svg>
+                <span class="brand-text">Elo<span class="brand-accent">++</span></span>
+            </a>
+            <nav class="main-nav">
+                <a href="{{ url_for('hello_world') }}" class="nav-link {% if request.path == '/' %}active{% endif %}">Home</a>
+                <a href="{{ url_for('profile_page') }}" class="nav-link {% if request.path == '/profile' %}active{% endif %}">Profile</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="app-main">
+        <div class="main-container">
+            <!-- Flash Message Banner -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <div class="flash-container">
+                        {% for category, message in messages %}
+                            <div class="flash-alert alert-{{ category }}">
+                                <span class="flash-text">{{ message }}</span>
+                                <button class="flash-close" onclick="this.parentElement.remove();">&times;</button>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %}
+
+            {% block content %}{% endblock %}
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="app-footer">
+        <div class="footer-container">
+            <p>&copy; 2026 Elo++. All rights reserved. Elevate your game.</p>
+            <p class="footer-sub">Built for competitive chess player analytics.</p>
+        </div>
+    </footer>
+</body>
+</html>

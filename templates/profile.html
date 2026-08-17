@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block title %}Elo++ | Profile - Somesh9618{% endblock %}
+
+{% block content %}
+<section class="profile-section">
+    <div class="profile-header glass-panel">
+        <div class="profile-avatar-wrapper">
+            <!-- Knight Emblem in Avatar -->
+            <svg class="profile-avatar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M19 21H5C5 18 6.5 16.5 8 15.5C9 14.8 9.5 14.5 9 13.5C8 11.5 6 9.5 7 6.5C8 3.5 11.5 3 13.5 3.5C15.5 4 17 5.5 17.5 7.5C18 9.5 17.5 11 16.5 12.5C16 13.5 16.5 13.8 17.5 14.5C19 15.5 19 18 19 21Z" fill="currentColor" fill-opacity="0.1"/>
+            </svg>
+        </div>
+        <div class="profile-info">
+            <h1 class="player-name">Somesh9618</h1>
+            <p class="player-title">Candidate Master (Self-Proclaimed)</p>
+            <div class="player-badges">
+                <span class="badge badge-rank">Diamond Tier</span>
+                <span class="badge badge-status">Online</span>
+            </div>
+        </div>
+        <div class="profile-rating-box">
+            <span class="rating-label">Elo++ Rating</span>
+            <span class="rating-value">1,842</span>
+        </div>
+    </div>
+</section>
+
+<section class="profile-details-grid">
+    <!-- Player Stats -->
+    <div class="profile-stats glass-panel">
+        <h3>Performance Stats</h3>
+        <ul class="stats-list">
+            <li>
+                <span class="stat-name">Win/Draw/Loss</span>
+                <span class="stat-detail">24 / 8 / 12</span>
+            </li>
+            <li>
+                <span class="stat-name">Win Rate</span>
+                <span class="stat-detail">54.5%</span>
+            </li>
+            <li>
+                <span class="stat-name">Peak Rating</span>
+                <span class="stat-detail">1,857</span>
+            </li>
+            <li>
+                <span class="stat-name">Matches Played</span>
+                <span class="stat-detail">44</span>
+            </li>
+        </ul>
+    </div>
+
+    <!-- Connected Profiles / Accounts -->
+    <div class="profile-accounts glass-panel">
+        <h3>Connected Profiles</h3>
+        <div class="connected-account">
+            <span class="account-platform">Chess.com</span>
+            <span class="account-username">
+                {% if connected_chess_username %}
+                    <a href="https://www.chess.com/member/{{ connected_chess_username }}" target="_blank" class="accent-link">{{ connected_chess_username }}</a>
+                {% else %}
+                    <span class="muted-text">Not Connected</span>
+                {% endif %}
+            </span>
+        </div>
+        <div class="connected-account">
+            <span class="account-platform">Lichess</span>
+            <span class="account-username muted-text">Not Connected</span>
+        </div>
+    </div>
+</section>
+{% endblock %}
