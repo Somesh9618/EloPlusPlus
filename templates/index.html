@@ -1,0 +1,194 @@
+{% extends "base.html" %}
+
+{% block title %}Elo++ | Chess Rating & Game Tracker{% endblock %}
+
+{% block content %}
+<section class="hero-section">
+    <div class="hero-content">
+        <h1 class="hero-title">Track. Analyze. Conquer.</h1>
+        <p class="hero-quote">"We are here to make you a better chess player"</p>
+        <p class="hero-subtitle">The ultimate player rating and matchmaking database. Compare ratings, review matches, and level up your chess strategy.</p>
+    </div>
+</section>
+
+<!-- Action Cards (Linking and Uploading) -->
+<section class="action-section">
+    <div class="action-grid">
+        <!-- Chess.com Integration Card -->
+        <div class="action-card glass-panel">
+            <div class="card-icon-wrapper">
+                <svg class="card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"/>
+                    <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+                    <path d="M2 12h20"/>
+                </svg>
+            </div>
+            <h3>Connect Chess.com</h3>
+            <p>Sync your online profile directly to track your rapid, blitz, and bullet ratings over time.</p>
+            <form action="{{ url_for('hello_world') }}" method="POST" class="action-form">
+                <input type="hidden" name="form_type" value="chess_link">
+                <div class="form-group">
+                    <input type="url" name="chess_url" placeholder="https://www.chess.com/member/username" required class="form-input">
+                </div>
+                <button type="submit" class="btn btn-primary btn-glowing">Sync Profile</button>
+            </form>
+        </div>
+
+        <!-- File Upload Card -->
+        <div class="action-card glass-panel">
+            <div class="card-icon-wrapper">
+                <svg class="card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                    <polyline points="17 8 12 3 7 8"/>
+                    <line x1="12" y1="3" x2="12" y2="15"/>
+                </svg>
+            </div>
+            <h3>Upload Game Files</h3>
+            <p>Import your custom games to analyze moves. Supports PGN, PDF, or Word DOC formats.</p>
+            <form action="{{ url_for('hello_world') }}" method="POST" enctype="multipart/form-data" class="action-form">
+                <input type="hidden" name="form_type" value="game_upload">
+                <div class="form-group">
+                    <label class="file-dropzone">
+                        <input type="file" name="game_file" accept=".pdf,.pgn,.doc,.docx" required onchange="updateFileName(this)">
+                        <span class="dropzone-text" id="file-label-text">Select PGN, PDF, or DOC</span>
+                    </label>
+                </div>
+                <button type="submit" class="btn btn-secondary">Upload Document</button>
+            </form>
+        </div>
+    </div>
+</section>
+
+<!-- Dashboard Stats Overview -->
+<section class="stats-section">
+    <h2 class="section-title">Global Dashboard</h2>
+    <div class="stats-grid">
+        <div class="stat-card glass-panel">
+            <span class="stat-label">Active Players</span>
+            <span class="stat-value">1,402</span>
+            <span class="stat-change positive">+12% this week</span>
+        </div>
+        <div class="stat-card glass-panel">
+            <span class="stat-label">Matches Logged</span>
+            <span class="stat-value">48,910</span>
+            <span class="stat-change positive">+248 today</span>
+        </div>
+        <div class="stat-card glass-panel">
+            <span class="stat-label">Average Elo Rating</span>
+            <span class="stat-value">1,624</span>
+            <span class="stat-change negative">-5 Elo (avg shift)</span>
+        </div>
+        <div class="stat-card glass-panel">
+            <span class="stat-label">Current Season</span>
+            <span class="stat-value">Season 2</span>
+            <span class="stat-change neutral">Ends in 12 days</span>
+        </div>
+    </div>
+</section>
+
+<!-- Recent Matches Feed -->
+<section class="matches-section">
+    <h2 class="section-title">Recent Elo Matches</h2>
+    <div class="table-container glass-panel">
+        <table class="matches-table">
+            <thead>
+                <tr>
+                    <th>White Player</th>
+                    <th>Result</th>
+                    <th>Black Player</th>
+                    <th>Event</th>
+                    <th>Date</th>
+                    <th>Elo Impact</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>
+                        <span class="player-badge">
+                            <span class="badge-color white-color"></span>
+                            Somesh9618 (1842)
+                        </span>
+                    </td>
+                    <td><span class="result-badge win">1 - 0</span></td>
+                    <td>
+                        <span class="player-badge">
+                            <span class="badge-color black-color"></span>
+                            GrandmasterX (1815)
+                        </span>
+                    </td>
+                    <td>Elo++ Blitz Cup</td>
+                    <td>Today, 22:45</td>
+                    <td><span class="elo-change positive">+12</span></td>
+                </tr>
+                <tr>
+                    <td>
+                        <span class="player-badge">
+                            <span class="badge-color white-color"></span>
+                            MagnusJr (2104)
+                        </span>
+                    </td>
+                    <td><span class="result-badge draw">½ - ½</span></td>
+                    <td>
+                        <span class="player-badge">
+                            <span class="badge-color black-color"></span>
+                            HikaruFan (2098)
+                        </span>
+                    </td>
+                    <td>Friday Night Open</td>
+                    <td>Yesterday, 20:15</td>
+                    <td><span class="elo-change neutral">0</span></td>
+                </tr>
+                <tr>
+                    <td>
+                        <span class="player-badge">
+                            <span class="badge-color white-color"></span>
+                            ChessNewbie (1150)
+                        </span>
+                    </td>
+                    <td><span class="result-badge lose">0 - 1</span></td>
+                    <td>
+                        <span class="player-badge">
+                            <span class="badge-color black-color"></span>
+                            TacticsTrainer (1210)
+                        </span>
+                    </td>
+                    <td>Casual Match</td>
+                    <td>Aug 16, 17:30</td>
+                    <td><span class="elo-change negative">-8</span></td>
+                </tr>
+                <tr>
+                    <td>
+                        <span class="player-badge">
+                            <span class="badge-color white-color"></span>
+                            Somesh9618 (1830)
+                        </span>
+                    </td>
+                    <td><span class="result-badge win">1 - 0</span></td>
+                    <td>
+                        <span class="player-badge">
+                            <span class="badge-color black-color"></span>
+                            PawnStormer (1795)
+                        </span>
+                    </td>
+                    <td>Elo++ Rapid Arena</td>
+                    <td>Aug 15, 14:20</td>
+                    <td><span class="elo-change positive">+15</span></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<script>
+function updateFileName(input) {
+    var label = document.getElementById('file-label-text');
+    if (input.files && input.files.length > 0) {
+        label.textContent = "Selected: " + input.files[0].name;
+        label.classList.add('selected');
+    } else {
+        label.textContent = "Select PGN, PDF, or DOC";
+        label.classList.remove('selected');
+    }
+}
+</script>
+{% endblock %}
