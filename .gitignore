@@ -1,0 +1,17 @@
+# Virtual environment
+env/
+venv/
+ENV/
+.venv/
+
+# IDE files
+.vscode/
+.idea/
+
+# Agent configuration/metadata
+.gemini/
+
+# Python cache files
+__pycache__/
+*.py[cod]
+*$py.class
