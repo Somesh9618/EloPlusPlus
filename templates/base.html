@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,22 +8,29 @@
     <!-- Premium Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
     <!-- Link to Stylesheet -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
+
 <body>
     <!-- Floating Background Decorative SVGs (Chess pieces/boards on sides) -->
     <div class="chess-decoration decoration-left">
         <svg viewBox="0 0 100 100" fill="currentColor">
             <!-- Knight Silhouette -->
-            <path d="M35,20 C32,20 28,22 25,25 C20,30 20,38 23,43 C26,48 30,50 32,54 C33,56 31,58 29,60 C25,64 21,70 20,78 L80,78 C79,72 75,65 71,61 C67,57 65,56 65,54 C65,51 68,48 70,44 C72,40 73,34 71,28 C69,22 64,18 57,17 C52,16 46,17 40,19 C38,19 37,20 35,20 Z" opacity="0.03"></path>
+            <path
+                d="M35,20 C32,20 28,22 25,25 C20,30 20,38 23,43 C26,48 30,50 32,54 C33,56 31,58 29,60 C25,64 21,70 20,78 L80,78 C79,72 75,65 71,61 C67,57 65,56 65,54 C65,51 68,48 70,44 C72,40 73,34 71,28 C69,22 64,18 57,17 C52,16 46,17 40,19 C38,19 37,20 35,20 Z"
+                opacity="0.03"></path>
         </svg>
     </div>
     <div class="chess-decoration decoration-right">
         <svg viewBox="0 0 100 100" fill="currentColor">
             <!-- Rook Silhouette -->
-            <path d="M25,20 L25,30 L32,30 L32,25 L45,25 L45,30 L55,30 L55,25 L68,25 L68,30 L75,30 L75,20 Z M28,33 L72,33 L70,45 L30,45 Z M30,48 L70,48 L73,75 L27,75 Z M20,78 L80,78 L80,85 L20,85 Z" opacity="0.03"></path>
+            <path
+                d="M25,20 L25,30 L32,30 L32,25 L45,25 L45,30 L55,30 L55,25 L68,25 L68,30 L75,30 L75,20 Z M28,33 L72,33 L70,45 L30,45 Z M30,48 L70,48 L73,75 L27,75 Z M20,78 L80,78 L80,85 L20,85 Z"
+                opacity="0.03"></path>
         </svg>
     </div>
 
@@ -30,20 +38,26 @@
     <header class="app-header">
         <div class="nav-container">
             <a href="{{ url_for('hello_world') }}" class="brand">
-                <svg class="brand-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" xmlns="http://www.w3.org/2000/svg">
+                <svg class="brand-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    xmlns="http://www.w3.org/2000/svg">
                     <!-- Elegant Chess Queen SVG -->
-                    <path d="M12 2L9 7L4 5L7 11H17L20 5L15 7L12 2Z" fill="currentColor" fill-opacity="0.2" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
-                    <path d="M7 11V16H17V11H7Z" fill="currentColor" fill-opacity="0.2" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
-                    <path d="M5 20H19C19 18 17 18 17 16H7C7 18 5 18 5 20Z" fill="currentColor" fill-opacity="0.2" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
-                    <circle cx="12" cy="2" r="1" fill="currentColor"/>
-                    <circle cx="4" cy="5" r="1" fill="currentColor"/>
-                    <circle cx="20" cy="5" r="1" fill="currentColor"/>
+                    <path d="M12 2L9 7L4 5L7 11H17L20 5L15 7L12 2Z" fill="currentColor" fill-opacity="0.2"
+                        stroke="currentColor" stroke-width="2" stroke-linejoin="round" />
+                    <path d="M7 11V16H17V11H7Z" fill="currentColor" fill-opacity="0.2" stroke="currentColor"
+                        stroke-width="2" stroke-linejoin="round" />
+                    <path d="M5 20H19C19 18 17 18 17 16H7C7 18 5 18 5 20Z" fill="currentColor" fill-opacity="0.2"
+                        stroke="currentColor" stroke-width="2" stroke-linejoin="round" />
+                    <circle cx="12" cy="2" r="1" fill="currentColor" />
+                    <circle cx="4" cy="5" r="1" fill="currentColor" />
+                    <circle cx="20" cy="5" r="1" fill="currentColor" />
                 </svg>
                 <span class="brand-text">Elo<span class="brand-accent">++</span></span>
             </a>
             <nav class="main-nav">
-                <a href="{{ url_for('hello_world') }}" class="nav-link {% if request.path == '/' %}active{% endif %}">Home</a>
-                <a href="{{ url_for('profile_page') }}" class="nav-link {% if request.path == '/profile' %}active{% endif %}">Profile</a>
+                <a href="{{ url_for('hello_world') }}"
+                    class="nav-link {% if request.path == '/' %}active{% endif %}">Home</a>
+                <a href="{{ url_for('profile_page') }}"
+                    class="nav-link {% if request.path == '/profile' %}active{% endif %}">Profile</a>
             </nav>
         </div>
     </header>
@@ -53,16 +67,16 @@
         <div class="main-container">
             <!-- Flash Message Banner -->
             {% with messages = get_flashed_messages(with_categories=true) %}
-                {% if messages %}
-                    <div class="flash-container">
-                        {% for category, message in messages %}
-                            <div class="flash-alert alert-{{ category }}">
-                                <span class="flash-text">{{ message }}</span>
-                                <button class="flash-close" onclick="this.parentElement.remove();">&times;</button>
-                            </div>
-                        {% endfor %}
-                    </div>
-                {% endif %}
+            {% if messages %}
+            <div class="flash-container">
+                {% for category, message in messages %}
+                <div class="flash-alert alert-{{ category }}">
+                    <span class="flash-text">{{ message }}</span>
+                    <button class="flash-close" onclick="this.parentElement.remove();">&times;</button>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
             {% endwith %}
 
             {% block content %}{% endblock %}
@@ -71,10 +85,11 @@
 
     <!-- Footer -->
     <footer class="app-footer">
-        <div class="footer-container">
+        <div style="text-align: center;" class="footer-container">
             <p>&copy; 2026 Elo++. All rights reserved. Elevate your game.</p>
             <p class="footer-sub">Built for competitive chess player analytics.</p>
         </div>
     </footer>
 </body>
+
 </html>

@@ -20,18 +20,6 @@ def hello_world():
             else:
                 flash("Invalid Chess.com URL submitted.", "error")
                 
-        elif form_type == "game_upload":
-            if "game_file" not in request.files:
-                flash("No file part in the upload request.", "error")
-                return redirect(url_for("hello_world"))
-                
-            file = request.files["game_file"]
-            if file.filename == "":
-                flash("No file selected for upload.", "error")
-            else:
-                # Just mock the save behavior and report success
-                flash(f"Successfully uploaded and analyzed '{file.filename}'!", "success")
-                
         return redirect(url_for("hello_world"))
         
     return render_template("index.html")
