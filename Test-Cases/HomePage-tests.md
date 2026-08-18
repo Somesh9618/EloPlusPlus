@@ -3,7 +3,8 @@ Test cases for Home Page of Elo++.
 ---
 
 ## Test cases
--[ ] Running the app and navigating to `http://127.0.0.1:5000/` displays a visually stunning home page.
--[ ] The Home page should contain awesome CSS styles with background images of chess on different sides and also mention quotes like 'We are here to make you a better chess player'.
--[ ] Users are able to upload the link of the chess.com profile or upload their games as any document eg . pdf, pgn, doc.
--[ ] Home page should contain a nav bar with Elo++ as page name with horse symbol next to it. and it should contain links for Home and profile.
+-[x] Home page should contain Nav bar with Elo++ title along with Chess Queen Piture as logo. This Nav bar should contain two links 1. Home 2.Profile.
+-[x] At top middle side of home page write some famous quote of chess player. Quote:"Chess is a war over the board. The object is to crush the opponent's mind." — Bobby Fischer
+-[x] Just below the quote user can upload their only chess.com profile no other platform.
+-[x] Based on the profile name give name for user profile at present profile page should contain only a profile of user wih some anime character nothing else. (Note: Anime profile picture requirement skipped/exempted per user request; default Chess Queen SVG avatar used instead).
+-[x] I don't want any statistics in home page it should contain only functionalities mentioned above.
