@@ -1,11 +1,16 @@
 # pyrefly: ignore [missing-import]
 from flask import Flask, render_template, request, redirect, url_for, flash, session
+from flask_caching import Cache
 import os
 import requests
 import datetime
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
+
+# Cache API responses for 10 minutes (Chess.com updates at most every 12h)
+cache = Cache(app, config={'CACHE_TYPE': 'SimpleCache', 'CACHE_DEFAULT_TIMEOUT': 600})
 
 def parse_single_game(game, username):
     # Determine user color
@@ -48,52 +53,93 @@ def parse_single_game(game, username):
         'time_class': game.get('time_class', '')
     }
 
+def _fetch_archive(archive_url, headers):
+    """Fetch a single monthly archive — called in parallel threads."""
+    try:
+        resp = requests.get(archive_url, headers=headers, timeout=8)
+        if resp.status_code == 200:
+            return resp.json().get("games", [])
+    except Exception as e:
+        print(f"Error fetching archive {archive_url}: {e}")
+    return []
+
 def fetch_recent_games_by_class(username, limit=20):
     headers = {'User-Agent': 'EloPlusPlus/1.0 (contact: admin@eloplusplus.com)'}
-    blitz_games = []
-    rapid_games = []
-    bullet_games = []
-    all_recent_games = []
-    
+    blitz_games, rapid_games, bullet_games, all_recent_games = [], [], [], []
+
     try:
         archives_url = f"https://api.chess.com/pub/player/{username}/games/archives"
-        r = requests.get(archives_url, headers=headers, timeout=5)
+        r = requests.get(archives_url, headers=headers, timeout=8)
         if r.status_code != 200:
             return [], [], [], []
-        
+
         archives = r.json().get("archives", [])
         if not archives:
             return [], [], [], []
-            
-        for archive_url in reversed(archives):
-            # If we have 20 of each, we can stop
-            if (len(blitz_games) >= limit and 
-                len(rapid_games) >= limit and 
-                len(bullet_games) >= limit and 
-                len(all_recent_games) >= limit):
-                break
-                
-            resp = requests.get(archive_url, headers=headers, timeout=5)
-            if resp.status_code == 200:
-                games = resp.json().get("games", [])
-                for game in reversed(games):
-                    time_class = game.get("time_class")
-                    parsed_game = parse_single_game(game, username)
-                    
-                    if len(all_recent_games) < limit:
-                        all_recent_games.append(parsed_game)
-                        
-                    if time_class == 'blitz' and len(blitz_games) < limit:
-                        blitz_games.append(parsed_game)
-                    elif time_class == 'rapid' and len(rapid_games) < limit:
-                        rapid_games.append(parsed_game)
-                    elif time_class == 'bullet' and len(bullet_games) < limit:
-                        bullet_games.append(parsed_game)
-                        
+
+        # Only look at the 3 most recent months in parallel — enough for 20 games each
+        recent_archives = list(reversed(archives))[:3]
+
+        with ThreadPoolExecutor(max_workers=3) as executor:
+            future_to_url = {executor.submit(_fetch_archive, url, headers): url for url in recent_archives}
+            month_games = []
+            for future in as_completed(future_to_url):
+                month_games.append((future_to_url[future], future.result()))
+
+        # Sort by archive URL (newest first) and process
+        month_games.sort(key=lambda x: x[0], reverse=True)
+        for _, games in month_games:
+            for game in reversed(games):
+                time_class = game.get("time_class")
+                parsed_game = parse_single_game(game, username)
+
+                if len(all_recent_games) < limit:
+                    all_recent_games.append(parsed_game)
+                if time_class == 'blitz' and len(blitz_games) < limit:
+                    blitz_games.append(parsed_game)
+                elif time_class == 'rapid' and len(rapid_games) < limit:
+                    rapid_games.append(parsed_game)
+                elif time_class == 'bullet' and len(bullet_games) < limit:
+                    bullet_games.append(parsed_game)
+
     except Exception as e:
         print(f"Error fetching games: {e}")
-        
+
     return blitz_games, rapid_games, bullet_games, all_recent_games
+
+
+@cache.memoize(timeout=600)
+def fetch_all_chess_data(username):
+    """Fetch profile, stats, and recent games in parallel. Result is cached 10 min per username."""
+    headers = {'User-Agent': 'EloPlusPlus/1.0 (contact: admin@eloplusplus.com)'}
+    profile_data, stats_data = {}, {}
+
+    def _get_profile():
+        try:
+            r = requests.get(f"https://api.chess.com/pub/player/{username}", headers=headers, timeout=8)
+            return r.json() if r.status_code == 200 else {}
+        except Exception as e:
+            print(f"Profile fetch error: {e}")
+            return {}
+
+    def _get_stats():
+        try:
+            r = requests.get(f"https://api.chess.com/pub/player/{username}/stats", headers=headers, timeout=8)
+            return r.json() if r.status_code == 200 else {}
+        except Exception as e:
+            print(f"Stats fetch error: {e}")
+            return {}
+
+    # Fetch profile + stats in parallel, then games (needs archives first)
+    with ThreadPoolExecutor(max_workers=2) as executor:
+        f_profile = executor.submit(_get_profile)
+        f_stats = executor.submit(_get_stats)
+        profile_data = f_profile.result()
+        stats_data = f_stats.result()
+
+    blitz_games, rapid_games, bullet_games, all_recent_games = fetch_recent_games_by_class(username)
+
+    return profile_data, stats_data, blitz_games, rapid_games, bullet_games, all_recent_games
 
 def analyze_games(games):
     if not games:
@@ -208,24 +254,15 @@ def hello_world():
 @app.route("/profile")
 def profile_page():
     username = session.get("chess_username", "Somesh9618")
-    
-    headers = {'User-Agent': 'EloPlusPlus/1.0 (contact: admin@eloplusplus.com)'}
-    profile_data = {}
-    stats_data = {}
-    
+
     try:
-        # Profile details
-        r_prof = requests.get(f"https://api.chess.com/pub/player/{username}", headers=headers, timeout=5)
-        if r_prof.status_code == 200:
-            profile_data = r_prof.json()
-        
-        # Rating statistics
-        r_stats = requests.get(f"https://api.chess.com/pub/player/{username}/stats", headers=headers, timeout=5)
-        if r_stats.status_code == 200:
-            stats_data = r_stats.json()
+        # All data fetched in parallel and cached per username for 10 minutes
+        profile_data, stats_data, blitz_games, rapid_games, bullet_games, all_recent_games = fetch_all_chess_data(username)
     except Exception as e:
-        print(f"Error fetching basic chess.com data: {e}")
-        flash("Failed to fetch player stats from Chess.com API. Showing cached or fallback data.", "error")
+        print(f"Error fetching chess.com data: {e}")
+        flash("Failed to fetch player data from Chess.com API.", "error")
+        profile_data, stats_data = {}, {}
+        blitz_games, rapid_games, bullet_games, all_recent_games = [], [], [], []
         
     # Extract details
     avatar_url = profile_data.get('avatar')
@@ -255,9 +292,6 @@ def profile_page():
     bullet_rating = bullet_stats.get('last', {}).get('rating', 'N/A')
     bullet_peak = bullet_stats.get('best', {}).get('rating', 'N/A')
     bullet_record = bullet_stats.get('record', {'win': 0, 'loss': 0, 'draw': 0})
-    
-    # Fetch recent games
-    blitz_games, rapid_games, bullet_games, all_recent_games = fetch_recent_games_by_class(username)
     
     # Analyze recent games
     analysis = analyze_games(all_recent_games)
