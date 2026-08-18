@@ -1,31 +1,260 @@
 {% extends "base.html" %}
 
-{% block title %}Elo++ | Profile - Somesh9618{% endblock %}
+{% block title %}Elo++ | Profile - {{ player_name }}{% endblock %}
 
 {% block content %}
-<section class="profile-section" style="display: flex; justify-content: center; margin-top: 2rem;">
-    <div class="profile-header glass-panel" style="max-width: 480px; width: 100%; display: flex; flex-direction: column; align-items: center; text-align: center; padding: 3rem 2rem; gap: 1.5rem;">
-        <div class="profile-avatar-wrapper" style="width: 120px; height: 120px; border-radius: 50%; background: rgba(0, 242, 254, 0.1); border: 2px solid var(--secondary-glow); display: flex; align-items: center; justify-content: center; color: var(--secondary-glow); filter: drop-shadow(0 0 15px rgba(0, 242, 254, 0.3));">
-            <!-- Elegant Chess Queen SVG instead of anime character -->
-            <svg class="profile-avatar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 60px; height: 60px;">
-                <path d="M12 2L9 7L4 5L7 11H17L20 5L15 7L12 2Z" fill="currentColor" fill-opacity="0.2" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
-                <path d="M7 11V16H17V11H7Z" fill="currentColor" fill-opacity="0.2" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
-                <path d="M5 20H19C19 18 17 18 17 16H7C7 18 5 18 5 20Z" fill="currentColor" fill-opacity="0.2" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
-                <circle cx="12" cy="2" r="1" fill="currentColor"/>
-                <circle cx="4" cy="5" r="1" fill="currentColor"/>
-                <circle cx="20" cy="5" r="1" fill="currentColor"/>
-            </svg>
+<div class="profile-container" style="max-width: 1200px; margin: 0 auto; padding: 2rem 1rem;">
+    <!-- Profile Header Card -->
+    <header class="profile-header-card glass-panel" style="display: flex; flex-wrap: wrap; gap: 2rem; align-items: center; padding: 2.5rem; margin-bottom: 2rem; border-radius: var(--border-radius);">
+        <div class="profile-avatar-wrapper" style="width: 100px; height: 100px; border-radius: 50%; background: rgba(0, 242, 254, 0.1); border: 2px solid var(--secondary-glow); display: flex; align-items: center; justify-content: center; color: var(--secondary-glow); filter: drop-shadow(0 0 15px rgba(0, 242, 254, 0.3)); overflow: hidden;">
+            {% if avatar_url %}
+                <img src="{{ avatar_url }}" alt="{{ username }}'s Avatar" style="width: 100%; height: 100%; object-fit: cover;">
+            {% else %}
+                <!-- Elegant Chess Queen SVG fallback -->
+                <svg class="profile-avatar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 50px; height: 50px;">
+                    <path d="M12 2L9 7L4 5L7 11H17L20 5L15 7L12 2Z" fill="currentColor" fill-opacity="0.2" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+                    <path d="M7 11V16H17V11H7Z" fill="currentColor" fill-opacity="0.2" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+                    <path d="M5 20H19C19 18 17 18 17 16H7C7 18 5 18 5 20Z" fill="currentColor" fill-opacity="0.2" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+                    <circle cx="12" cy="2" r="1" fill="currentColor"/>
+                    <circle cx="4" cy="5" r="1" fill="currentColor"/>
+                    <circle cx="20" cy="5" r="1" fill="currentColor"/>
+                </svg>
+            {% endif %}
         </div>
-        <div class="profile-info" style="display: flex; flex-direction: column; gap: 0.5rem; width: 100%;">
-            <h1 class="player-name" style="font-size: 2.2rem; font-weight: 700; color: #FFFFFF; letter-spacing: -0.5px;">
-                {% if connected_chess_username %}
-                    {{ connected_chess_username }}
-                {% else %}
-                    Somesh9618
+        <div class="profile-meta" style="flex: 1; display: flex; flex-direction: column; gap: 0.5rem;">
+            <div style="display: flex; align-items: center; gap: 0.8rem; flex-wrap: wrap;">
+                <h1 style="font-size: 2.2rem; font-weight: 700; color: #FFFFFF; margin: 0; font-family: 'Outfit', sans-serif;">{{ player_name }}</h1>
+                {% if title %}
+                    <span class="title-badge" style="background: linear-gradient(135deg, #ff9800, #f57c00); color: #000; font-weight: 800; padding: 2px 8px; border-radius: 4px; font-size: 0.85rem; font-family: 'Outfit', sans-serif; letter-spacing: 0.5px;">{{ title }}</span>
                 {% endif %}
-            </h1>
-            <p style="color: var(--text-muted); font-size: 0.95rem;">Chess Player Profile</p>
+            </div>
+            <p style="color: var(--accent-glow); font-weight: 500; margin: 0; font-size: 1.1rem;">@{{ username }}</p>
+            <p style="color: var(--text-muted); margin: 0; font-size: 0.95rem;">Chess.com Player &bull; Joined {{ joined_str }}</p>
         </div>
-    </div>
-</section>
+    </header>
+
+    <!-- Ratings Grid -->
+    <section class="ratings-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+        <!-- Blitz Card -->
+        <div class="rating-card glass-panel" style="padding: 2rem; border-radius: var(--border-radius); display: flex; flex-direction: column; gap: 1rem; border-left: 4px solid #a478ff;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <h3 style="margin: 0; color: var(--text-muted); font-size: 1rem; text-transform: uppercase; letter-spacing: 1px;">Blitz Rating</h3>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 24px; height: 24px; color: #a478ff;">
+                    <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+                </svg>
+            </div>
+            <div class="rating-values" style="display: flex; align-items: baseline; gap: 1rem;">
+                <span class="current-rating" style="font-size: 2.8rem; font-weight: 800; color: #FFFFFF; font-family: 'Outfit', sans-serif;">{{ blitz_rating }}</span>
+                {% if blitz_peak != 'N/A' %}
+                    <span class="peak-rating" style="color: var(--text-muted); font-size: 0.9rem;">Peak: {{ blitz_peak }}</span>
+                {% endif %}
+            </div>
+            <div class="record-stats" style="display: flex; justify-content: space-between; border-top: 1px solid var(--glass-border); padding-top: 1rem; font-size: 0.9rem; color: var(--text-muted);">
+                <span>W: <strong style="color: #00e676;">{{ blitz_record.win }}</strong></span>
+                <span>L: <strong style="color: #ff5252;">{{ blitz_record.loss }}</strong></span>
+                <span>D: <strong style="color: #bdbdbd;">{{ blitz_record.draw }}</strong></span>
+            </div>
+        </div>
+
+        <!-- Rapid Card -->
+        <div class="rating-card glass-panel" style="padding: 2rem; border-radius: var(--border-radius); display: flex; flex-direction: column; gap: 1rem; border-left: 4px solid #00f2fe;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <h3 style="margin: 0; color: var(--text-muted); font-size: 1rem; text-transform: uppercase; letter-spacing: 1px;">Rapid Rating</h3>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 24px; height: 24px; color: #00f2fe;">
+                    <circle cx="12" cy="12" r="10"/>
+                    <polyline points="12 6 12 12 16 14"/>
+                </svg>
+            </div>
+            <div class="rating-values" style="display: flex; align-items: baseline; gap: 1rem;">
+                <span class="current-rating" style="font-size: 2.8rem; font-weight: 800; color: #FFFFFF; font-family: 'Outfit', sans-serif;">{{ rapid_rating }}</span>
+                {% if rapid_peak != 'N/A' %}
+                    <span class="peak-rating" style="color: var(--text-muted); font-size: 0.9rem;">Peak: {{ rapid_peak }}</span>
+                {% endif %}
+            </div>
+            <div class="record-stats" style="display: flex; justify-content: space-between; border-top: 1px solid var(--glass-border); padding-top: 1rem; font-size: 0.9rem; color: var(--text-muted);">
+                <span>W: <strong style="color: #00e676;">{{ rapid_record.win }}</strong></span>
+                <span>L: <strong style="color: #ff5252;">{{ rapid_record.loss }}</strong></span>
+                <span>D: <strong style="color: #bdbdbd;">{{ rapid_record.draw }}</strong></span>
+            </div>
+        </div>
+
+        <!-- Bullet Card -->
+        <div class="rating-card glass-panel" style="padding: 2rem; border-radius: var(--border-radius); display: flex; flex-direction: column; gap: 1rem; border-left: 4px solid #ff1744;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <h3 style="margin: 0; color: var(--text-muted); font-size: 1rem; text-transform: uppercase; letter-spacing: 1px;">Bullet Rating</h3>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 24px; height: 24px; color: #ff1744;">
+                    <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+                </svg>
+            </div>
+            <div class="rating-values" style="display: flex; align-items: baseline; gap: 1rem;">
+                <span class="current-rating" style="font-size: 2.8rem; font-weight: 800; color: #FFFFFF; font-family: 'Outfit', sans-serif;">{{ bullet_rating }}</span>
+                {% if bullet_peak != 'N/A' %}
+                    <span class="peak-rating" style="color: var(--text-muted); font-size: 0.9rem;">Peak: {{ bullet_peak }}</span>
+                {% endif %}
+            </div>
+            <div class="record-stats" style="display: flex; justify-content: space-between; border-top: 1px solid var(--glass-border); padding-top: 1rem; font-size: 0.9rem; color: var(--text-muted);">
+                <span>W: <strong style="color: #00e676;">{{ bullet_record.win }}</strong></span>
+                <span>L: <strong style="color: #ff5252;">{{ bullet_record.loss }}</strong></span>
+                <span>D: <strong style="color: #bdbdbd;">{{ bullet_record.draw }}</strong></span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Game History Timelines Section -->
+    <section class="game-history-section glass-panel" style="padding: 2.5rem; margin-bottom: 2rem; border-radius: var(--border-radius);">
+        <h2 style="font-family: 'Outfit', sans-serif; color: #FFFFFF; margin-top: 0; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem; font-size: 1.5rem;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 24px; height: 24px; color: var(--accent-glow);">
+                <path d="M3 3v18h18"/>
+                <path d="M18.7 8l-5.1 5.2-2.8-2.7L7 14.3"/>
+            </svg>
+            Recent Game Timelines (Last 20 Games)
+        </h2>
+
+        <!-- Blitz Timeline -->
+        <div class="timeline-block" style="margin-bottom: 2rem;">
+            <h4 style="color: #FFFFFF; margin-bottom: 0.8rem; font-weight: 600;">Blitz Games</h4>
+            {% if blitz_games %}
+                <div class="timeline-graph-container" style="display: flex; gap: 8px; align-items: flex-end; height: 100px; padding: 15px; background: rgba(0, 0, 0, 0.2); border-radius: 8px; border: 1px solid var(--glass-border); overflow-x: auto;">
+                    {% for game in blitz_games %}
+                        <a href="{{ game.url }}" target="_blank" class="timeline-bar-link {{ game.outcome }}" title="{{ game.outcome|upper }} vs {{ game.opponent }} as {{ game.color|capitalize }} ({{ game.date }})" style="flex: 1; min-width: 20px; max-width: 32px; text-decoration: none; border-radius: 4px; display: flex; flex-direction: column; justify-content: center; align-items: center; transition: all 0.2s; font-size: 0.75rem; font-weight: 700; font-family: 'Outfit', sans-serif;">
+                            <span class="piece-indicator" style="color: rgba(255,255,255,0.95); font-size: 0.65rem;">{{ game.color[0]|upper }}</span>
+                        </a>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p style="color: var(--text-muted); font-style: italic;">No recent Blitz games found.</p>
+            {% endif %}
+        </div>
+
+        <!-- Rapid Timeline -->
+        <div class="timeline-block" style="margin-bottom: 2rem;">
+            <h4 style="color: #FFFFFF; margin-bottom: 0.8rem; font-weight: 600;">Rapid Games</h4>
+            {% if rapid_games %}
+                <div class="timeline-graph-container" style="display: flex; gap: 8px; align-items: flex-end; height: 100px; padding: 15px; background: rgba(0, 0, 0, 0.2); border-radius: 8px; border: 1px solid var(--glass-border); overflow-x: auto;">
+                    {% for game in rapid_games %}
+                        <a href="{{ game.url }}" target="_blank" class="timeline-bar-link {{ game.outcome }}" title="{{ game.outcome|upper }} vs {{ game.opponent }} as {{ game.color|capitalize }} ({{ game.date }})" style="flex: 1; min-width: 20px; max-width: 32px; text-decoration: none; border-radius: 4px; display: flex; flex-direction: column; justify-content: center; align-items: center; transition: all 0.2s; font-size: 0.75rem; font-weight: 700; font-family: 'Outfit', sans-serif;">
+                            <span class="piece-indicator" style="color: rgba(255,255,255,0.95); font-size: 0.65rem;">{{ game.color[0]|upper }}</span>
+                        </a>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p style="color: var(--text-muted); font-style: italic;">No recent Rapid games found.</p>
+            {% endif %}
+        </div>
+
+        <!-- Bullet Timeline -->
+        <div class="timeline-block" style="margin-bottom: 0;">
+            <h4 style="color: #FFFFFF; margin-bottom: 0.8rem; font-weight: 600;">Bullet Games</h4>
+            {% if bullet_games %}
+                <div class="timeline-graph-container" style="display: flex; gap: 8px; align-items: flex-end; height: 100px; padding: 15px; background: rgba(0, 0, 0, 0.2); border-radius: 8px; border: 1px solid var(--glass-border); overflow-x: auto;">
+                    {% for game in bullet_games %}
+                        <a href="{{ game.url }}" target="_blank" class="timeline-bar-link {{ game.outcome }}" title="{{ game.outcome|upper }} vs {{ game.opponent }} as {{ game.color|capitalize }} ({{ game.date }})" style="flex: 1; min-width: 20px; max-width: 32px; text-decoration: none; border-radius: 4px; display: flex; flex-direction: column; justify-content: center; align-items: center; transition: all 0.2s; font-size: 0.75rem; font-weight: 700; font-family: 'Outfit', sans-serif;">
+                            <span class="piece-indicator" style="color: rgba(255,255,255,0.95); font-size: 0.65rem;">{{ game.color[0]|upper }}</span>
+                        </a>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p style="color: var(--text-muted); font-style: italic;">No recent Bullet games found.</p>
+            {% endif %}
+        </div>
+
+        <!-- Legend -->
+        <div class="legend-box" style="display: flex; flex-wrap: wrap; gap: 1.5rem; justify-content: center; margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid var(--glass-border); font-size: 0.85rem; color: var(--text-muted);">
+            <div style="display: flex; align-items: center; gap: 6px;">
+                <span style="width: 12px; height: 12px; background: linear-gradient(135deg, #00b0ff, #00e676); border-radius: 3px; display: inline-block;"></span>
+                <span>Win</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 6px;">
+                <span style="width: 12px; height: 12px; background: linear-gradient(135deg, #ff1744, #ff5252); border-radius: 3px; display: inline-block;"></span>
+                <span>Loss</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 6px;">
+                <span style="width: 12px; height: 12px; background: linear-gradient(135deg, #757575, #9e9e9e); border-radius: 3px; display: inline-block;"></span>
+                <span>Draw</span>
+            </div>
+            <div>&bull; Click any bar to view the game analysis &bull; W/B inside bar indicates White/Black pieces</div>
+        </div>
+    </section>
+
+    <!-- Strength & Weakness Analysis Cards -->
+    <section class="analysis-section" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(480px, 1fr)); gap: 2rem;">
+        <!-- Strengths Card -->
+        <div class="analysis-card strengths-card glass-panel" style="padding: 2.5rem; border-radius: var(--border-radius); border-top: 4px solid #00e676; display: flex; flex-direction: column; gap: 1.2rem;">
+            <h2 style="font-family: 'Outfit', sans-serif; color: #FFFFFF; margin: 0; display: flex; align-items: center; gap: 0.6rem; font-size: 1.4rem;">
+                <span style="font-size: 1.6rem;">⚡</span> Player Strengths
+            </h2>
+            <ul style="color: #E0E0E0; font-size: 1rem; line-height: 1.6; margin: 0; padding-left: 1.2rem; display: flex; flex-direction: column; gap: 0.8rem;">
+                {% for item in analysis.strengths[:2] %}
+                    <li>{{ item }}</li>
+                {% endfor %}
+            </ul>
+
+            {% if analysis.strengths|length > 2 %}
+                <details class="analysis-details" style="cursor: pointer; margin-top: 0.5rem;">
+                    <summary class="details-toggle-btn" style="color: var(--secondary-glow); font-weight: 600; outline: none; list-style: none; font-size: 0.95rem; display: flex; align-items: center; gap: 4px;">
+                        Show More Details
+                    </summary>
+                    <ul style="color: #E0E0E0; font-size: 1rem; line-height: 1.6; margin: 1rem 0 0 0; padding-left: 1.2rem; display: flex; flex-direction: column; gap: 0.8rem;">
+                        {% for item in analysis.strengths[2:] %}
+                            <li>{{ item }}</li>
+                        {% endfor %}
+                    </ul>
+                </details>
+            {% endif %}
+        </div>
+
+        <!-- Weaknesses, Tips & Resources Card -->
+        <div class="analysis-card weaknesses-card glass-panel" style="padding: 2.5rem; border-radius: var(--border-radius); border-top: 4px solid #ff1744; display: flex; flex-direction: column; gap: 1.2rem;">
+            <h2 style="font-family: 'Outfit', sans-serif; color: #FFFFFF; margin: 0; display: flex; align-items: center; gap: 0.6rem; font-size: 1.4rem;">
+                <span style="font-size: 1.6rem;">⚠️</span> Areas to Improve
+            </h2>
+            <ul style="color: #E0E0E0; font-size: 1rem; line-height: 1.6; margin: 0; padding-left: 1.2rem; display: flex; flex-direction: column; gap: 0.8rem;">
+                {% for item in analysis.weaknesses[:2] %}
+                    <li>{{ item }}</li>
+                {% endfor %}
+            </ul>
+
+            {% if analysis.weaknesses|length > 2 or analysis.tips or analysis.resources %}
+                <details class="analysis-details" style="cursor: pointer; margin-top: 0.5rem;">
+                    <summary class="details-toggle-btn" style="color: var(--secondary-glow); font-weight: 600; outline: none; list-style: none; font-size: 0.95rem; display: flex; align-items: center; gap: 4px;">
+                        Show More Details & Tips
+                    </summary>
+                    <div style="margin-top: 1rem; display: flex; flex-direction: column; gap: 1.2rem; cursor: default;" onclick="event.stopPropagation();">
+                        {% if analysis.weaknesses|length > 2 %}
+                            <ul style="color: #E0E0E0; font-size: 1rem; line-height: 1.6; margin: 0; padding-left: 1.2rem; display: flex; flex-direction: column; gap: 0.8rem;">
+                                {% for item in analysis.weaknesses[2:] %}
+                                    <li>{{ item }}</li>
+                                {% endfor %}
+                            </ul>
+                        {% endif %}
+
+                        {% if analysis.tips %}
+                            <div class="tips-box" style="background: rgba(255, 23, 68, 0.05); border: 1px solid rgba(255, 23, 68, 0.15); border-radius: 8px; padding: 1.2rem; display: flex; flex-direction: column; gap: 0.6rem;">
+                                <h4 style="margin: 0; color: #FFFFFF; font-weight: 600; font-size: 0.95rem; text-transform: uppercase; letter-spacing: 0.5px;">Actionable Tips</h4>
+                                <ul style="color: #E0E0E0; font-size: 0.9rem; line-height: 1.5; margin: 0; padding-left: 1rem; display: flex; flex-direction: column; gap: 0.5rem;">
+                                    {% for tip in analysis.tips %}
+                                        <li>{{ tip }}</li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        {% endif %}
+
+                        {% if analysis.resources %}
+                            <div class="resources-box" style="display: flex; flex-direction: column; gap: 0.6rem;">
+                                <h4 style="margin: 0; color: #FFFFFF; font-weight: 600; font-size: 0.95rem; text-transform: uppercase; letter-spacing: 0.5px;">Recommended Resources</h4>
+                                <div class="resources-links" style="display: flex; flex-wrap: wrap; gap: 8px;">
+                                    {% for res in analysis.resources %}
+                                        <a href="{{ res.url }}" target="_blank" class="resource-btn" style="background: rgba(255, 255, 255, 0.05); color: var(--secondary-glow); border: 1px solid var(--glass-border); padding: 8px 14px; border-radius: 6px; text-decoration: none; font-size: 0.85rem; font-weight: 500; transition: all 0.2s;">
+                                            {{ res.title }} &rarr;
+                                        </a>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        {% endif %}
+                    </div>
+                </details>
+            {% endif %}
+        </div>
+    </section>
+</div>
 {% endblock %}
