@@ -1,5 +1,6 @@
 # pyrefly: ignore [missing-import]
 from flask import Flask, render_template, request, redirect, url_for, flash, session
+# pyrefly: ignore [missing-import]
 from flask_caching import Cache
 import os
 import requests
