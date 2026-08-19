@@ -169,7 +169,11 @@ def analyze_games(games):
             'strengths': ["No recent game data available to analyze strengths."],
             'weaknesses': ["No recent game data available to analyze weaknesses."],
             'tips': ["Play more games to see dynamic improvement tips."],
-            'resources': [{"title": "Chess.com Lessons", "url": "https://www.chess.com/lessons"}]
+            'resources': [
+                {"title": "GothamChess YouTube", "url": "https://www.youtube.com/@GothamChess", "type": "youtube"},
+                {"title": "Daniel Naroditsky YouTube", "url": "https://www.youtube.com/@DanielNaroditskyGM", "type": "youtube"},
+                {"title": "Chess.com Lessons", "url": "https://www.chess.com/lessons", "type": "lesson"}
+            ]
         }
         
     strengths = []
@@ -227,30 +231,45 @@ def analyze_games(games):
         timeout_loss_pct = (loss_reasons.get('timeout', 0) / total_losses) * 100
         
         if checkmate_loss_pct >= 35:
-            weaknesses.append(f"Vulnerable to tactical blunders: {checkmate_loss_pct:.0f}% of losses are via checkmate. Watch out for king safety.")
-            tips.append("King Safety: Always double check if your king is exposed, and avoid advancing pawns in front of a castled king without support.")
-            resources.append({"title": "Chess.com King Safety Lessons", "url": "https://www.chess.com/lessons/king-safety"})
+            weaknesses.append(f"King Safety & Tactical Blunders: {checkmate_loss_pct:.0f}% of your losses occur via checkmate. Your king is frequently caught in open files or under coordinated piece storms.")
+            tips.append("King Safety & Defense Note: Always verify checks, captures, and threats before castling. Avoid advancing g/h pawns in front of your king unless you have concrete central counterplay.")
+            resources.append({"title": "GothamChess: Master Defense & Traps", "url": "https://www.youtube.com/@GothamChess", "type": "youtube"})
+            resources.append({"title": "Daniel Naroditsky: Speedrun & Positional Defense", "url": "https://www.youtube.com/@DanielNaroditskyGM", "type": "youtube"})
+            resources.append({"title": "Chess.com: King Safety & Mating Patterns", "url": "https://www.chess.com/lessons/king-safety", "type": "lesson"})
             
         if timeout_loss_pct >= 30:
-            weaknesses.append(f"Time management struggles: {timeout_loss_pct:.0f}% of losses are due to running out of time.")
-            tips.append("Time Scrambles: Try allocating a fixed budget per move and practice making quicker decisions, especially in blitz.")
-            resources.append({"title": "Time Management Tips on Chess.com", "url": "https://www.chess.com/article/view/time-management-in-chess"})
+            weaknesses.append(f"Time Management & Clock Stress: {timeout_loss_pct:.0f}% of your losses are due to flagging on time during critical transitions.")
+            tips.append("Clock Budgeting Note: Allocate a maximum thinking threshold in the opening (under 5s/move) and establish intuition in recurring middle-game structures to save clock for endgames.")
+            resources.append({"title": "Eric Rosen: Blitz Strategy & Tricks", "url": "https://www.youtube.com/@EricRosen", "type": "youtube"})
+            resources.append({"title": "Chess.com: Time Management Guides", "url": "https://www.chess.com/article/view/time-management-in-chess", "type": "article"})
             
     if black_games and black_win_rate < 35:
-        weaknesses.append(f"Suboptimal black play: low win rate ({black_win_rate:.0f}%) when playing with the black pieces.")
-        tips.append("Black Openings: Develop a solid, defensive opening repertoire as Black, such as the Caro-Kann Defense or the French Defense.")
-        resources.append({"title": "Study Black Openings on Chess.com", "url": "https://www.chess.com/openings"})
+        weaknesses.append(f"Black Piece Opening Repertoire: Low win rate ({black_win_rate:.0f}%) when playing as Black. Early inaccuracies lead to passive piece placement.")
+        tips.append("Black Repertoire Note: Choose one consistent response to 1.e4 (e.g. Caro-Kann or French Defense) and one for 1.d4 (e.g. King's Indian or Nimzo-Indian) to avoid getting caught unprepared.")
+        resources.append({"title": "GothamChess: Beginner to Master Openings Guide", "url": "https://www.youtube.com/results?search_query=GothamChess+black+openings", "type": "youtube"})
+        resources.append({"title": "Hanging Pawns: In-Depth Opening Theory", "url": "https://www.youtube.com/@HangingPawns", "type": "youtube"})
+        resources.append({"title": "Chess.com: Openings Explorer", "url": "https://www.chess.com/openings", "type": "lesson"})
         
     if not weaknesses:
-        weaknesses.append("No critical weaknesses detected in recent games. Continue keeping a clean sheet!")
-        tips.append("Continuous Learning: Keep analyzing games and practicing tactical puzzles to stay sharp.")
-        resources.append({"title": "Practice Tactics Puzzles", "url": "https://www.chess.com/puzzles"})
+        weaknesses.append("Solid tactical consistency detected across your recent games with no fatal patterns detected.")
+        tips.append("Continuous Mastery Note: Solve 10-15 daily calculation puzzles and study grandmaster endgame conversions to break into the next rating tier.")
+        resources.append({"title": "GothamChess: Game Analysis & Educational Chess", "url": "https://www.youtube.com/@GothamChess", "type": "youtube"})
+        resources.append({"title": "Daniel Naroditsky: Grandmaster Calculation Series", "url": "https://www.youtube.com/@DanielNaroditskyGM", "type": "youtube"})
+        resources.append({"title": "Chess.com: Daily Tactics Puzzles", "url": "https://www.chess.com/puzzles", "type": "puzzle"})
         
+    # Deduplicate resources by URL while preserving order
+    seen_urls = set()
+    unique_resources = []
+    for r in resources:
+        if r['url'] not in seen_urls:
+            seen_urls.add(r['url'])
+            unique_resources.append(r)
+
     return {
         'strengths': strengths,
         'weaknesses': weaknesses,
         'tips': tips,
-        'resources': resources
+        'resources': unique_resources
     }
 
 @app.route("/", methods=["GET", "POST"])

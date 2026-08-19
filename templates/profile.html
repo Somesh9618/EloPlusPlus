@@ -240,11 +240,18 @@
                         {% endif %}
 
                         {% if analysis.resources %}
-                            <div class="resources-box" style="display: flex; flex-direction: column; gap: 0.6rem;">
-                                <h4 style="margin: 0; color: #FFFFFF; font-weight: 600; font-size: 0.95rem; text-transform: uppercase; letter-spacing: 0.5px;">Recommended Resources</h4>
-                                <div class="resources-links" style="display: flex; flex-wrap: wrap; gap: 8px;">
+                            <div class="resources-box" style="display: flex; flex-direction: column; gap: 0.8rem;">
+                                <h4 style="margin: 0; color: #FFFFFF; font-weight: 600; font-size: 0.95rem; text-transform: uppercase; letter-spacing: 0.5px;">Recommended YouTube Channels & Resources</h4>
+                                <div class="resources-links" style="display: flex; flex-wrap: wrap; gap: 10px;">
                                     {% for res in analysis.resources %}
-                                        <a href="{{ res.url }}" target="_blank" class="resource-btn" style="background: rgba(255, 255, 255, 0.05); color: var(--secondary-glow); border: 1px solid var(--glass-border); padding: 8px 14px; border-radius: 6px; text-decoration: none; font-size: 0.85rem; font-weight: 500; transition: all 0.2s;">
+                                        <a href="{{ res.url }}" target="_blank" class="resource-btn" style="background: rgba(255, 255, 255, 0.05); color: var(--secondary-glow); border: 1px solid var(--glass-border); padding: 8px 14px; border-radius: 8px; text-decoration: none; font-size: 0.88rem; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s;">
+                                            {% if res.type == 'youtube' %}
+                                                <span style="color: #ff0000; font-size: 1rem;">▶</span>
+                                            {% elif res.type == 'lesson' %}
+                                                <span style="color: #00e676; font-size: 1rem;">📖</span>
+                                            {% else %}
+                                                <span style="color: var(--secondary-glow); font-size: 1rem;">⚡</span>
+                                            {% endif %}
                                             {{ res.title }} &rarr;
                                         </a>
                                     {% endfor %}
