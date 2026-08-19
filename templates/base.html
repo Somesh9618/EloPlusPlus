@@ -58,6 +58,8 @@
                     class="nav-link {% if request.path == '/' %}active{% endif %}">Home</a>
                 <a href="{{ url_for('profile_page') }}"
                     class="nav-link {% if request.path == '/profile' %}active{% endif %}">Profile</a>
+                <a href="{{ url_for('game_review_hub') }}"
+                    class="nav-link {% if request.path.startswith('/review') %}active{% endif %}">Review</a>
             </nav>
         </div>
     </header>

@@ -1,0 +1,273 @@
+{% extends "base.html" %}
+
+{% block title %}Elo++ | Game Review & Move Analysis{% endblock %}
+
+{% block content %}
+<div class="review-page-container">
+
+    {% if selected_game %}
+    <!-- ==========================================================================
+         DETAILED GAME REVIEW WORKSPACE (Clean Streamlined Layout)
+         ========================================================================== -->
+    <div class="review-workspace">
+        
+        <!-- Header / Back Navigation -->
+        <div class="workspace-top-bar glass-panel">
+            <a href="{{ url_for('game_review_hub') }}" class="back-link">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 20px; height: 20px;">
+                    <polyline points="15 18 9 12 15 6"></polyline>
+                </svg>
+                <span>Back to Games List</span>
+            </a>
+            <div class="game-matchup-title">
+                <span class="player-name-white">⚪ {{ selected_game.white_username }} ({{ selected_game.white_rating }})</span>
+                <span class="vs-badge">VS</span>
+                <span class="player-name-black">⚫ {{ selected_game.black_username }} ({{ selected_game.black_rating }})</span>
+            </div>
+            <div class="game-meta-badge">
+                <span class="time-control-pill">{{ selected_game.time_class | upper }} &bull; {{ selected_game.date }}</span>
+            </div>
+        </div>
+
+        <!-- Hidden PGN and metadata data store for JS -->
+        <div id="pgnData" style="display: none;">{{ selected_game.pgn }}</div>
+        <input type="hidden" id="reviewUserColor" value="{{ selected_game.color }}">
+
+        <!-- Streamlined Clean Review Grid -->
+        <div class="review-layout-clean">
+            
+            <!-- Top Players Overview Bar -->
+            <div class="players-overview-card glass-panel">
+                
+                <!-- Opponent Profile Box -->
+                <div class="player-summary-box opponent-box">
+                    <div class="player-avatar-wrapper">
+                        <svg viewBox="0 0 24 24" fill="currentColor" style="width: 26px; height: 26px; opacity: 0.85;">
+                            <path d="M12 2a5 5 0 105 5 5 5 0 00-5-5zm0 12c-5.33 0-8 2.67-8 4v2h16v-2c0-1.33-2.67-4-8-4z"/>
+                        </svg>
+                    </div>
+                    <div class="player-details">
+                        <span class="player-role">{{ 'White Pieces' if selected_game.color == 'black' else 'Black Pieces' }}</span>
+                        <h3 class="player-handle">{{ selected_game.opponent }}</h3>
+                        <span class="player-rating-val">Rating: <strong>{{ selected_game.opponent_rating }}</strong></span>
+                    </div>
+                    {% if selected_game.opponent_accuracy %}
+                    <div class="accuracy-badge opp-acc">
+                        <span class="acc-val">{{ selected_game.opponent_accuracy }}%</span>
+                        <span class="acc-lbl">Accuracy</span>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <div class="match-center-divider">
+                    <span class="divider-icon">⚡</span>
+                    <span class="divider-result {{ selected_game.outcome }}">{{ selected_game.outcome | upper }}</span>
+                </div>
+
+                <!-- User Profile Box -->
+                <div class="player-summary-box user-box">
+                    <div class="player-avatar-wrapper user-avatar-accent">
+                        <svg viewBox="0 0 24 24" fill="currentColor" style="width: 26px; height: 26px; opacity: 0.95;">
+                            <path d="M12 2L9 7L4 5L7 11H17L20 5L15 7L12 2Z"/>
+                        </svg>
+                    </div>
+                    <div class="player-details">
+                        <span class="player-role">{{ selected_game.color | capitalize }} Pieces</span>
+                        <h3 class="player-handle">{{ username }}</h3>
+                        <span class="player-rating-val">Rating: <strong>{{ selected_game.user_rating }}</strong></span>
+                    </div>
+                    {% if selected_game.user_accuracy %}
+                    <div class="accuracy-badge user-acc">
+                        <span class="acc-val">{{ selected_game.user_accuracy }}%</span>
+                        <span class="acc-lbl">Accuracy</span>
+                    </div>
+                    {% endif %}
+                </div>
+
+            </div>
+
+            <!-- Main Interactive Analytics & Breakdown Section -->
+            <div class="analytics-panels-grid">
+                
+                <!-- Left Column: Move Analysis Inspector & Evaluation -->
+                <div class="inspector-column">
+                    
+                    <!-- Current Move Evaluation Banner -->
+                    <div class="current-move-card glass-panel">
+                        <div class="move-card-top">
+                            <span class="section-micro-heading">Selected Move Evaluation</span>
+                            <div id="currentMoveBadge">
+                                <span class="quality-badge badge-good">Loading Move Analysis...</span>
+                            </div>
+                        </div>
+
+                        <!-- Dynamic Evaluation Gauge Bar -->
+                        <div class="horizontal-eval-container">
+                            <div class="eval-meta-row">
+                                <span class="eval-side-label">Advantage</span>
+                                <span class="eval-score-pill" id="evalScoreText">0.0</span>
+                            </div>
+                            <div class="eval-track-horizontal">
+                                <div class="eval-fill-horizontal" id="evalBarFill" style="width: 50%;"></div>
+                            </div>
+                        </div>
+
+                        <p class="move-explanation-text" id="moveExplanation">
+                            Use playback controls or keyboard arrow keys (← / →) to step through moves and inspect quality ratings.
+                        </p>
+
+                        <!-- Playback Controls -->
+                        <div class="board-playback-controls">
+                            <button class="ctrl-btn" id="btnFirst" title="First Move (Home)">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 18px; height: 18px;"><polyline points="11 19 2 12 11 5"/><polyline points="22 19 13 12 22 5"/></svg>
+                            </button>
+                            <button class="ctrl-btn" id="btnPrev" title="Previous Move (Left Arrow)">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 18px; height: 18px;"><polyline points="15 18 9 12 15 6"/></svg>
+                            </button>
+                            <button class="ctrl-btn ctrl-play" id="btnPlay" title="Auto Play (Space)">▶</button>
+                            <button class="ctrl-btn" id="btnNext" title="Next Move (Right Arrow)">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 18px; height: 18px;"><polyline points="9 18 15 12 9 6"/></svg>
+                            </button>
+                            <button class="ctrl-btn" id="btnLast" title="Last Move (End)">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 18px; height: 18px;"><polyline points="13 19 22 12 13 5"/><polyline points="2 19 11 12 2 5"/></svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Move Quality Classification Breakdown Matrix -->
+                    <div class="matrix-card glass-panel">
+                        <div class="matrix-header">
+                            <span class="player-tag user-side">⚪ {{ selected_game.white_username }}</span>
+                            <span class="matrix-title">Move Quality Counts</span>
+                            <span class="player-tag opp-side">⚫ {{ selected_game.black_username }}</span>
+                        </div>
+                        <div class="matrix-content" id="classificationMatrix">
+                            <!-- Filled dynamically by JS -->
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Right Column: Move Notation Log -->
+                <div class="move-log-column">
+                    <div class="move-log-card glass-panel">
+                        <div class="move-log-header">
+                            <div class="move-log-header-left">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 20px; height: 20px; color: var(--secondary-glow);">
+                                    <line x1="8" y1="6" x2="21" y2="6"></line>
+                                    <line x1="8" y1="12" x2="21" y2="12"></line>
+                                    <line x1="8" y1="18" x2="21" y2="18"></line>
+                                    <line x1="3" y1="6" x2="3.01" y2="6"></line>
+                                    <line x1="3" y1="12" x2="3.01" y2="12"></line>
+                                    <line x1="3" y1="18" x2="3.01" y2="18"></line>
+                                </svg>
+                                <span>Move Log & Notations</span>
+                            </div>
+                            <span class="hint-text">Click any move to review</span>
+                        </div>
+                        <div class="move-log-body" id="moveListContainer">
+                            <!-- Filled dynamically by JS -->
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    {% else %}
+    <!-- ==========================================================================
+         MAIN GAME REVIEW LIST HUB (Last 20 Games)
+         ========================================================================== -->
+    <div class="review-hub-container">
+        
+        <header class="review-hub-header glass-panel">
+            <div class="hub-header-left">
+                <div class="hub-icon-wrapper">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 36px; height: 36px;">
+                        <circle cx="12" cy="12" r="10"/>
+                        <path d="M12 6v6l4 2"/>
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="hub-title">Game Review & Analysis</h1>
+                    <p class="hub-subtitle">Review your last 20 games for <strong>@{{ username }}</strong>, inspect turning points, and evaluate move quality.</p>
+                </div>
+            </div>
+
+            <!-- Time Class Filters -->
+            <div class="time-control-filters">
+                <button class="game-filter-btn active" data-filter="all">All ({{ all_games | length }})</button>
+                <button class="game-filter-btn" data-filter="blitz">Blitz ({{ blitz_games | length }})</button>
+                <button class="game-filter-btn" data-filter="rapid">Rapid ({{ rapid_games | length }})</button>
+                <button class="game-filter-btn" data-filter="bullet">Bullet ({{ bullet_games | length }})</button>
+            </div>
+        </header>
+
+        {% if all_games %}
+        <div class="games-list-grid">
+            {% for g in all_games %}
+            <div class="review-game-card glass-panel" data-time-class="{{ g.time_class }}">
+                
+                <!-- Game Card Left: Result & Time -->
+                <div class="card-left-badge outcome-{{ g.outcome }}">
+                    <span class="outcome-icon">
+                        {% if g.outcome == 'win' %}🏆{% elif g.outcome == 'loss' %}❌{% else %}🤝{% endif %}
+                    </span>
+                    <span class="outcome-text">{{ g.outcome | upper }}</span>
+                    <span class="time-class-tag">{{ g.time_class | upper }}</span>
+                </div>
+
+                <!-- Game Card Middle: Players & Match Info -->
+                <div class="card-matchup-info">
+                    <div class="matchup-row">
+                        <span class="role-bullet">{{ '⚪ White' if g.color == 'white' else '⚫ Black' }}</span>
+                        <span class="opponent-name">vs. <strong>{{ g.opponent }}</strong></span>
+                        <span class="opp-rating">({{ g.rating }})</span>
+                    </div>
+                    <div class="matchup-meta">
+                        <span>Played on {{ g.date }}</span>
+                        {% if g.result_code %}
+                        <span class="result-reason">&bull; {{ g.result_code | replace('_', ' ') | capitalize }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Game Card Right: Accuracy & Action -->
+                <div class="card-actions">
+                    {% if g.user_accuracy %}
+                    <div class="acc-badge">
+                        <span class="acc-num">{{ g.user_accuracy }}%</span>
+                        <span class="acc-label">Accuracy</span>
+                    </div>
+                    {% endif %}
+                    <a href="{{ url_for('game_review_hub', game_id=g.id) }}" class="review-action-btn">
+                        <span>Review Game</span>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 16px; height: 16px;">
+                            <polyline points="9 18 15 12 9 6"></polyline>
+                        </svg>
+                    </a>
+                </div>
+
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state-card glass-panel">
+            <div class="empty-icon">♟️</div>
+            <h3>No Games Found</h3>
+            <p>Could not find recent matches for @{{ username }}. Try connecting your Chess.com profile on the home page.</p>
+            <a href="{{ url_for('hello_world') }}" class="btn-primary">Connect Account</a>
+        </div>
+        {% endif %}
+
+    </div>
+    {% endif %}
+
+</div>
+
+<!-- Interactive Engine Script -->
+<script src="{{ url_for('static', filename='js/game_review.js') }}"></script>
+{% endblock %}
