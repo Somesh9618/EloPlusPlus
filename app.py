@@ -41,17 +41,39 @@ def parse_single_game(game, username):
     if end_time_val:
         date_str = datetime.datetime.fromtimestamp(end_time_val).strftime('%Y-%m-%d')
         
+    game_url = game.get('url', '')
+    game_id = game_url.rstrip('/').split('/')[-1] if game_url else ''
+    if not game_id and end_time_val:
+        game_id = f"game_{end_time_val}"
+        
+    # Extract accuracies if provided by Chess.com
+    accuracies = game.get('accuracies', {})
+    user_accuracy = accuracies.get('white') if user_is_white else accuracies.get('black')
+    opponent_accuracy = accuracies.get('black') if user_is_white else accuracies.get('white')
+    
     return {
-        'url': game.get('url', '#'),
+        'id': game_id,
+        'url': game_url or '#',
         'color': user_color,
+        'white_username': white_username,
+        'black_username': black_username,
+        'white_rating': game.get('white', {}).get('rating', 0),
+        'black_rating': game.get('black', {}).get('rating', 0),
         'opponent': opponent,
+        'user_rating': game.get('white', {}).get('rating', 0) if user_is_white else game.get('black', {}).get('rating', 0),
+        'opponent_rating': game.get('black', {}).get('rating', 0) if user_is_white else game.get('white', {}).get('rating', 0),
         'outcome': outcome,
         'result_code': user_result,
         'opponent_result_code': opponent_result,
         'date': date_str,
         'rating': game.get('white', {}).get('rating', 0) if user_is_white else game.get('black', {}).get('rating', 0),
         'time_control': game.get('time_control', ''),
-        'time_class': game.get('time_class', '')
+        'time_class': game.get('time_class', ''),
+        'pgn': game.get('pgn', ''),
+        'fen': game.get('fen', ''),
+        'user_accuracy': user_accuracy,
+        'opponent_accuracy': opponent_accuracy,
+        'end_time': end_time_val
     }
 
 def _fetch_archive(archive_url, headers):
@@ -78,7 +100,7 @@ def fetch_recent_games_by_class(username, limit=20):
         if not archives:
             return [], [], [], []
 
-        # Only look at the 3 most recent months in parallel — enough for 20 games each
+        # Look at the 3 most recent months in parallel
         recent_archives = list(reversed(archives))[:3]
 
         with ThreadPoolExecutor(max_workers=3) as executor:
@@ -108,7 +130,6 @@ def fetch_recent_games_by_class(username, limit=20):
 
     return blitz_games, rapid_games, bullet_games, all_recent_games
 
-
 @cache.memoize(timeout=600)
 def fetch_all_chess_data(username):
     """Fetch profile, stats, and recent games in parallel. Result is cached 10 min per username."""
@@ -131,7 +152,7 @@ def fetch_all_chess_data(username):
             print(f"Stats fetch error: {e}")
             return {}
 
-    # Fetch profile + stats in parallel, then games (needs archives first)
+    # Fetch profile + stats in parallel, then games
     with ThreadPoolExecutor(max_workers=2) as executor:
         f_profile = executor.submit(_get_profile)
         f_stats = executor.submit(_get_stats)
@@ -317,6 +338,47 @@ def profile_page():
         rapid_games=rapid_games,
         bullet_games=bullet_games,
         analysis=analysis
+    )
+
+@app.route("/review")
+@app.route("/review/<game_id>")
+def game_review_hub(game_id=None):
+    username = session.get("chess_username", "Somesh9618")
+    
+    try:
+        profile_data, stats_data, blitz_games, rapid_games, bullet_games, all_recent_games = fetch_all_chess_data(username)
+    except Exception as e:
+        print(f"Error fetching data for game review: {e}")
+        flash("Could not fetch recent games for review.", "error")
+        all_recent_games, blitz_games, rapid_games, bullet_games = [], [], [], []
+
+    selected_game = None
+    if game_id and all_recent_games:
+        # Find matching game by id or url substring
+        for g in all_recent_games:
+            if g.get('id') == game_id or game_id in g.get('url', ''):
+                selected_game = g
+                break
+        # If not found in all_recent_games, check blitz, rapid, bullet lists
+        if not selected_game:
+            for g in (blitz_games + rapid_games + bullet_games):
+                if g.get('id') == game_id or game_id in g.get('url', ''):
+                    selected_game = g
+                    break
+        # Fallback to first game if game_id given but not found
+        if not selected_game and all_recent_games:
+            selected_game = all_recent_games[0]
+    elif all_recent_games and request.args.get("auto_open") == "1":
+        selected_game = all_recent_games[0]
+
+    return render_template(
+        "game_review.html",
+        username=username,
+        all_games=all_recent_games,
+        blitz_games=blitz_games,
+        rapid_games=rapid_games,
+        bullet_games=bullet_games,
+        selected_game=selected_game
     )
 
 if __name__ == "__main__":
